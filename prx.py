@@ -109,8 +109,7 @@ if __name__ == "__main__":
     if args.interval:
         interval = int(args.interval)
 
-    # schedule.every(interval).minutes.do(grab_and_check)
-    # while True:
-    #     schedule.run_pending()
-    #     time.sleep(1)
-    grab_and_check()
+    schedule.every(interval).minutes.do(grab_and_check)
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
