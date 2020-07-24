@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/python3
 
 import urllib3
 import requests
@@ -110,6 +110,9 @@ if __name__ == "__main__":
         number_of_thread = int(args.thread)
     if args.interval:
         interval = int(args.interval)
+
+    print("Thread:      %d" % number_of_thread)
+    print("Interval:    %d" % interval)
 
     schedule.every(interval).minutes.do(grab_and_check)
     while True:
