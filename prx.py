@@ -8,8 +8,11 @@ import numpy as np
 import time
 import schedule
 import argparse
+from bs4 import BeautifulSoup
 
 PROXY_SCRAPE_URL = "https://api.proxyscrape.com/?request=getproxies&proxytype=http&timeout=3000&country=all&ssl=yes&anonymity=all"
+PROXY11_URL = 'https://proxy11.com/api/demoweb/proxy.json?google=1'
+FREE_PROXY_LIST_URL = 'https://free-proxy-list.net/'
 TEST_URL = "http://google.com"
 TIMEOUT = 3
 
@@ -29,7 +32,7 @@ class ProxyChecker(threading.Thread):
             session = requests.Session()
             session.headers['User-Agent'] = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/34.0.1847.131 Safari/537.36'
             session.max_redirects = 5
-            proxy = proxy.split('\n',1)[0]
+            proxy = proxy.split('\n', 1)[0]
             print('Checking ' + proxy)
             session.get(TEST_URL, proxies={'http':'http://' + proxy}, timeout=TIMEOUT, allow_redirects=True)
         except Exception as e:
@@ -46,10 +49,27 @@ class ProxyChecker(threading.Thread):
                 self.good_file.write(proxy)
                 threadLock.release()
 
-def scrape_proxy():
+def scrape_proxyscrape():
     r = requests.get(PROXY_SCRAPE_URL, allow_redirects=True)
     open("proxy.txt", "wb").write(r.content)
-    print("Done scrape!!")
+    print("Done scrape: proxyscrape!!")
+
+def scrape_proxy11():
+    r = requests.get(PROXY11_URL, allow_redirects=True)
+    json_result = r.json()["data"]
+    with open("proxy.txt", "a") as proxy_file:
+        for proxy in json_result:
+            proxy_file.write(proxy["ip"] + "\n")
+    print("Done scrape: proxy11!!")
+
+def scrape_free_proxy_list():
+    r = requests.get(FREE_PROXY_LIST_URL, allow_redirects=True)
+    soup = BeautifulSoup(r.text, "lxml")
+    with open("proxy.txt", "a") as proxy_file:
+        for items in soup.select("#proxylisttable tbody tr"):
+            proxy = ':'.join([item.text for item in items.select("td")[:2]])
+            proxy_file.write(proxy + "\n")
+    print("Done scrape: free_proxy_list!!")
 
 threadLock = threading.Lock()
 
@@ -78,7 +98,9 @@ def check_proxy():
     print("Done!!")
 
 def grab_and_check():
-    scrape_proxy()
+    scrape_proxyscrape()
+    scrape_proxy11()
+    scrape_free_proxy_list()
     check_proxy()
 
 def write_real_good_file():
