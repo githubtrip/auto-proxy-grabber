@@ -11,7 +11,7 @@ import argparse
 from bs4 import BeautifulSoup
 
 PROXY_SCRAPE_URL = "https://api.proxyscrape.com/?request=getproxies&proxytype=http&timeout=3000&country=all&ssl=yes&anonymity=all"
-PROXY11_URL = 'https://proxy11.com/api/demoweb/proxy.json?google=1'
+PROXY11_URL = 'https://proxy11.com/api/proxy.txt?key=MTY0Nw.XzBqIQ.vQKDGJbd_AtxtSb2O-S8DFAkX2g'
 FREE_PROXY_LIST_URL = 'https://free-proxy-list.net/'
 TEST_URL = "http://google.com"
 TIMEOUT = 3
@@ -59,10 +59,7 @@ def scrape_proxyscrape():
 
 def scrape_proxy11():
     r = requests.get(PROXY11_URL, allow_redirects=True)
-    json_result = r.json()["data"]
-    with open("proxy.txt", "a") as proxy_file:
-        for proxy in json_result:
-            proxy_file.write(proxy["ip"] + "\n")
+    open("proxy.txt", "ab").write(r.content + str.encode("\n"))
     print("Done scrape: proxy11!!")
 
 def scrape_free_proxy_list():
