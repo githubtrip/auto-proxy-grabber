@@ -23,6 +23,9 @@ class ProxyChecker(threading.Thread):
         self.good_file = good_file
     
     def check(self, proxy):
+        # 
+        # https://github.com/pythonism/proxy-checker/blob/master/prox.py
+        # 
         '''
             Function for check proxy return ERROR
             if proxy is Bad else
@@ -66,12 +69,28 @@ def scrape_free_proxy_list():
     r = requests.get(FREE_PROXY_LIST_URL, allow_redirects=True)
     soup = BeautifulSoup(r.text, "lxml")
     with open("proxy.txt", "a") as proxy_file:
+        # 
+        # https://stackoverflow.com/a/48431336
+        # 
         for items in soup.select("#proxylisttable tbody tr"):
             proxy = ':'.join([item.text for item in items.select("td")[:2]])
             proxy_file.write(proxy + "\n")
     print("Done scrape: free_proxy_list!!")
 
 threadLock = threading.Lock()
+
+def remove_duplicate():
+    proxy_file = open("proxy.txt")
+    list_proxy = list(proxy_file)
+    len1 = len(list_proxy)
+    list_proxy = list(dict.fromkeys(list_proxy))
+    len2 = len(list_proxy)
+    proxy_file.close()
+    proxy_file = open("proxy.txt", "w")
+    for proxy in list_proxy:
+        proxy_file.write(proxy)
+    proxy_file.close()
+    print("Removed %d duplicate proxies" % (len1 - len2))
 
 def check_proxy():
     good_file = open("temp_good.txt", "w")
@@ -101,6 +120,7 @@ def grab_and_check():
     scrape_proxyscrape()
     scrape_proxy11()
     scrape_free_proxy_list()
+    remove_duplicate()
     check_proxy()
 
 def write_real_good_file():
