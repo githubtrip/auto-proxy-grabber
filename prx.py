@@ -93,8 +93,6 @@ def remove_duplicate():
     print("Removed %d duplicate proxies" % (len1 - len2))
 
 def check_proxy():
-    good_file = open("temp_good.txt", "w")
-
     try:
         proxy_file = open("proxy.txt")
         proxies = list(proxy_file)
@@ -104,6 +102,7 @@ def check_proxy():
 
     splited_proxies = np.array_split(proxies, number_of_thread)
 
+    good_file = open("proxy.txt", "w")
     threads = []
     for i in range(0, number_of_thread):
         threads.append(ProxyChecker(splited_proxies[i], good_file))
@@ -124,7 +123,7 @@ def grab_and_check():
     check_proxy()
 
 def write_real_good_file():
-    temp_good_file = open("temp_good.txt")
+    temp_good_file = open("proxy.txt")
     good_file = open("good.txt", "w")
     good_file.write(temp_good_file.read())
     temp_good_file.close()
