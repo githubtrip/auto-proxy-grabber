@@ -15,6 +15,8 @@ PROXY11_URL = 'https://proxy11.com/api/proxy.txt?key=MTY0Nw.XzBqIQ.vQKDGJbd_Atxt
 FREE_PROXY_LIST_URL = 'https://free-proxy-list.net/'
 TEST_URL = "http://google.com"
 TIMEOUT = 3
+bad_proxy_count = 0
+good_proxy_count = 0
 
 class ProxyChecker(threading.Thread):
     def __init__(self, proxies, good_file):
@@ -44,12 +46,18 @@ class ProxyChecker(threading.Thread):
 
     def run(self):
         for proxy in self.proxies:
+            global bad_proxy_count
+            global good_proxy_count
             if self.check(proxy):
                 print('Bad proxy ' + proxy)
+                threadLock.acquire()
+                bad_proxy_count = bad_proxy_count+1
+                threadLock.release()
             else:
                 print('Good proxy ' + proxy)
                 threadLock.acquire()
                 self.good_file.write(proxy)
+                good_proxy_count = good_proxy_count+1
                 threadLock.release()
 
 def scrape_proxyscrape():
@@ -111,6 +119,7 @@ def check_proxy():
     good_file.close()
     write_real_good_file()
     print("Done!!")
+    print("Good proxy: %d/%d" % (good_proxy_count, good_proxy_count+bad_proxy_count))
 
 def grab_and_check():
     scrape_proxyscrape()
