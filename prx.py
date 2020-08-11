@@ -143,7 +143,7 @@ def enablePrint():
 
 if __name__ == "__main__":
     number_of_thread = 10
-    interval = 5
+    interval = 1
 
     parser = argparse.ArgumentParser()
     parser.add_argument("-s", "--silent", help="don't print anything", action="store_true")
